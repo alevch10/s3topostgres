@@ -1,0 +1,8 @@
+.ruff_cache
+.env
+__pycache__
+.venv
+processed_history.json
+app.log
+.pytest_cache
+journal.json
