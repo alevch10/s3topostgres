@@ -11,7 +11,6 @@
 ```
 git clone https://github.com/alevch10/s3topostgres.git
 cd s3topostgres
-poetry install
 ```
 
 2) Установите зависимости с Poetry:

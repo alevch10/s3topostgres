@@ -9,27 +9,22 @@ import asyncio
 # Sync engine for migrations
 sync_engine = create_engine(
     f"postgresql://{settings.db.user}:{settings.db.password}@{settings.db.host}:{settings.db.port}/{settings.db.name}"
-)  # Изменено: dbname → name
+)
 
 # Async engine for app
 async_engine = create_async_engine(
-    f"postgresql+asyncpg://{settings.db.user}:{settings.db.password}@{settings.db.host}:{settings.db.port}/{settings.db.name}",  # Изменено: dbname → name
-    echo=settings.debug,
+    f"postgresql+asyncpg://{settings.db.user}:{settings.db.password}@{settings.db.host}:{settings.db.port}/{settings.db.name}",
+    echo=False,
+    pool_pre_ping=True,
 )
 AsyncSessionLocal = sessionmaker(
     async_engine, class_=AsyncSession, expire_on_commit=False
-)
-
-
-async def get_async_session() -> AsyncSession:
-    async with AsyncSessionLocal() as session:
-        yield session
+)  # Экспортируем для использования
 
 
 async def init_db():
     """Apply migrations and create tables if not exist"""
     logger.info("Initializing database")
     async with async_engine.begin() as conn:
-        # Create tables if not exist (Alembic handles migrations)
         await conn.run_sync(Base.metadata.create_all)
     logger.info("Database initialized successfully")

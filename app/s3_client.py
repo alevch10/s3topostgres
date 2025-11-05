@@ -26,20 +26,31 @@ class S3Client:
         logger.info(f"S3 client initialized for bucket: {self.bucket}")
 
     def list_objects(self, prefix: str):
-        """List objects with prefix, return sorted by LastModified ascending (oldest first)"""
+        """List objects with prefix, return sorted list of {'Key': str, 'LastModified': datetime} ascending (oldest first), only direct files under prefix"""
         logger.info(f"Listing S3 objects with prefix: {prefix}")
         objects = []
         paginator = self.client.get_paginator("list_objects_v2")
         for page in paginator.paginate(Bucket=self.bucket, Prefix=prefix):
             if "Contents" in page:
                 objects.extend(page["Contents"])
+        # Filter to only direct files: no additional / after prefix, and not ending with / (exclude folder placeholders)
+        if not prefix.endswith("/"):
+            prefix += "/"
+        filtered_objects = [
+            obj
+            for obj in objects
+            if obj["Key"].startswith(prefix)
+            and obj["Key"].count("/") == prefix.count("/")
+            and not obj["Key"].endswith("/")
+        ]
         # Sort by LastModified ascending (oldest first)
-        objects.sort(
-            key=lambda x: x["LastModified"], reverse=False
-        )  # Изменено: reverse=False для ascending
-        keys = [obj["Key"] for obj in objects]
-        logger.info(f"Found {len(keys)} objects, sorted oldest first")
-        return keys
+        filtered_objects.sort(key=lambda x: x["LastModified"], reverse=False)
+        result = [
+            {"Key": obj["Key"], "LastModified": obj["LastModified"]}
+            for obj in filtered_objects
+        ]
+        logger.info(f"Found {len(result)} direct files in prefix {prefix}")
+        return result
 
     def get_object(self, key: str):
         """Download object as bytes"""
