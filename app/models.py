@@ -63,7 +63,7 @@ class WebEvent(Base):
     user_properties_json = Column(JSON)
     extra_json = Column(JSON)
 
-
+""" Первая миграция - дропнуть колонки, которые null на всем диапазоне данных """
 class MpEvent(Base):
     __tablename__ = "mp"
     insert_id = Column(String, primary_key=True)
@@ -74,19 +74,27 @@ class MpEvent(Base):
     amplitude_event_type = Column(String)
     amplitude_id = Column(BigInteger)
     app = Column(Integer)
+    """ 
+    Четвертая миграция - вынести city, county, region в отдельную таблицу. 
+    Вероятно, нужно сделать колонку city_id, потому что могут быть одинаковые названия городов в разных странах
+    А также в будущем app-metrica может писать города в другом формате - тогда сделаем маппинг, чтобы данные были одинаковые на всем диапазоне. 
+    """
+    """ Пятая миграция - связать первичный ключ city и дропнуть лишние колонки """
     city = Column(String)
     client_event_time = Column(DateTime, nullable=False)
     client_upload_time = Column(DateTime)
-    country = Column(String)
+    # country = Column(String) в cities
     data_type = Column(String)
-    device_brand = Column(String)
-    device_carrier = Column(String)
-    device_family = Column(String)
+    """ Вторая миграция - вынести данные о девайсах в отдельную таблицу """
+    """ Третья миграция - связать первичный ключ device_id и дропнуть лишние колонки девайсов """
+    # device_brand = Column(String)
+    # device_carrier = Column(String)
+    # device_family = Column(String)
     device_id = Column(String)
-    device_manufacturer = Column(String)
-    device_model = Column(String)
-    device_type = Column(String)
-    dma = Column(String)
+    # device_manufacturer = Column(String)
+    # device_model = Column(String)
+    # device_type = Column(String)
+    # dma = Column(String)
     event_id = Column(Integer)
     event_time = Column(DateTime)
     event_type = Column(String)
@@ -104,7 +112,7 @@ class MpEvent(Base):
     paying = Column(String)
     platform = Column(String)
     processed_time = Column(DateTime)
-    region = Column(String)
+    # region = Column(String) - в cities? 
     sample_rate = Column(Float)
     server_received_time = Column(DateTime)
     server_upload_time = Column(DateTime)
@@ -122,3 +130,31 @@ class MpEvent(Base):
     plan_json = Column(JSON)
     user_properties_json = Column(JSON)
     extra_json = Column(JSON)
+
+""" Вторая миграция - вынести данные о девайсах в отдельную таблицу """
+class Devises(Base):
+    __tablename__ = "devices"
+    device_brand = Column(String)
+    device_carrier = Column(String)
+    device_family = Column(String)
+    device_id = Column(String)
+    device_manufacturer = Column(String)
+    device_model = Column(String)
+    device_type = Column(String)
+    dma = Column(String)
+
+
+class Users(Base):
+    __tablename__ = "users"
+
+
+class UserProperties(Base):
+    __tablename__ = "user_properties"
+
+class Cities(Base):
+    __tablename__ = "cities"
+
+    id = 
+    city = Column(String)
+    country = Column(String)
+    region = Column(String)
