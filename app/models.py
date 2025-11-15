@@ -6,7 +6,7 @@ Base = declarative_base()
 
 class WebEvent(Base):
     __tablename__ = "web"
-    insert_id = Column(String, primary_key=True, index=True)
+    insert_id = Column(String, primary_key=True)
     insert_key = Column(String)
     schema = Column(String)
     adid = Column(String)
@@ -15,7 +15,7 @@ class WebEvent(Base):
     amplitude_id = Column(BigInteger)
     app = Column(Integer)
     city = Column(String)
-    client_event_time = Column(DateTime, nullable=False, index=True)
+    client_event_time = Column(DateTime, nullable=False)
     client_upload_time = Column(DateTime)
     country = Column(String)
     data_type = Column(String)
@@ -66,7 +66,7 @@ class WebEvent(Base):
 
 class MpEvent(Base):
     __tablename__ = "mp"
-    insert_id = Column(String, primary_key=True, index=True)
+    insert_id = Column(String, primary_key=True)
     insert_key = Column(String)
     schema = Column(String)
     adid = Column(String)
@@ -75,7 +75,7 @@ class MpEvent(Base):
     amplitude_id = Column(BigInteger)
     app = Column(Integer)
     city = Column(String)
-    client_event_time = Column(DateTime, nullable=False, index=True)
+    client_event_time = Column(DateTime, nullable=False)
     client_upload_time = Column(DateTime)
     country = Column(String)
     data_type = Column(String)
