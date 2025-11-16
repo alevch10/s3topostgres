@@ -79,23 +79,33 @@ async def process_file(file_key: str, table_name: str, batch_size: int = 100):
                             try:
                                 raw_obj = json.loads(text)
                             except json.JSONDecodeError as e:
-                                logger.warning(f"Invalid JSON in {file_key}:{line_num}: {e}")
+                                logger.warning(
+                                    f"Invalid JSON in {file_key}:{line_num}: {e}"
+                                )
                                 update_current_progress(file_key, line_num)
                                 continue
 
                             try:
                                 ev = EventSchema(**raw_obj)
-                                record = ev.model_dump(by_alias=False, exclude_unset=True)
+                                record = ev.model_dump(
+                                    by_alias=False, exclude_unset=True
+                                )
                             except Exception as e:
-                                logger.error(f"Pydantic parse failed at {file_key}:{line_num}: {e}")
+                                logger.error(
+                                    f"Pydantic parse failed at {file_key}:{line_num}: {e}"
+                                )
                                 update_current_progress(file_key, line_num)
                                 raise
 
                             insert_id_val = record.get("insert_id")
                             if not insert_id_val:
-                                logger.error(f"Missing insert_id at {file_key}:{line_num}")
+                                logger.error(
+                                    f"Missing insert_id at {file_key}:{line_num}"
+                                )
                                 update_current_progress(file_key, line_num)
-                                raise ValueError(f"insert_id missing in {file_key}:{line_num}")
+                                raise ValueError(
+                                    f"insert_id missing in {file_key}:{line_num}"
+                                )
 
                             # fallback для data_json, если нет
                             if "data_json" not in record:
@@ -108,7 +118,9 @@ async def process_file(file_key: str, table_name: str, batch_size: int = 100):
                                 batch.clear()
                                 update_current_progress(file_key, line_num)
                                 if line_num % 5000 == 0:
-                                    logger.info(f"Processed {line_num} lines in {file_key}")
+                                    logger.info(
+                                        f"Processed {line_num} lines in {file_key}"
+                                    )
 
                         if batch:
                             await insert_batch(session, table_model, batch)
@@ -171,7 +183,7 @@ async def background_processor_async(
 
     for idx in range(start_idx, len(object_keys)):
         file_key = object_keys[idx]
-        logger.info(f"Processing file {idx+1}/{len(object_keys)}: {file_key}")
+        logger.info(f"Processing file {idx + 1}/{len(object_keys)}: {file_key}")
         await process_file(file_key, table_name)
         file_handler.flush()
 
@@ -179,13 +191,25 @@ async def background_processor_async(
 
 
 # ---------------- ОБОЛОЧКИ ---------------- #
-def background_processor(prefix: str, table_name: str, start_file: Optional[str] = None, start_date: Optional[str] = None):
+def background_processor(
+    prefix: str,
+    table_name: str,
+    start_file: Optional[str] = None,
+    start_date: Optional[str] = None,
+):
     asyncio.run(background_processor_async(prefix, table_name, start_file, start_date))
 
 
-def start_processing(prefix: str, table_name: str, start_file: Optional[str] = None, start_date: Optional[str] = None):
+def start_processing(
+    prefix: str,
+    table_name: str,
+    start_file: Optional[str] = None,
+    start_date: Optional[str] = None,
+):
     logger.info(f"Starting background process for {prefix}/{table_name}")
-    p = Process(target=background_processor, args=(prefix, table_name, start_file, start_date))
+    p = Process(
+        target=background_processor, args=(prefix, table_name, start_file, start_date)
+    )
     p.start()
     logger.info(f"Spawned process PID={p.pid}")
     return p
